@@ -1,0 +1,85 @@
+create extension postgis;
+
+CREATE TABLE drupal_sites (
+    id serial primary key,
+    url varchar(256),
+	whois_checked int,
+	geocoded int,
+	private int,
+	organization varchar(256),
+	name varchar(256),
+	street varchar(256),
+	city varchar(256),
+	zip varchar(256),
+	state varchar(256),
+	country varchar(256),
+	latitude double precision,
+	longitude double precision,
+	timestamp date
+);
+go.com,1,1,NULL,NULL,Domain Administrator,500 South Buena Street,Burbank,91521,CA,US,34.1569,-118.325,1/18/14 16:56
+
+INSERT INTO drupal_sites (url,whois_checked,geocoded,private,organization,name,street,city,zip,state,country,latitude,longitude,timestamp, point)VALUES ('go.com',1,1,NULL,NULL,'Domain Administrator','500 South Buena Street','Burbank','91521','CA','US',34.1569,-118.325,1/18/14,(SELECT ST_SetSRID(ST_MakePoint(34.1569, -118.325),4326)));
+
+create user "drupal_user" with password 'drupal_pass';
+grant all privileges on database "map_drupal" to "drupal_user";
+alter database "map_drupal" owner to "drupal_user";
+
+INSERT INTO drupal_sites (id,url, point)
+VALUES (0,'geoodk.com',(SELECT ST_SetSRID(ST_MakePoint(-71.1043443253471, 42.3150676015829),4326)));
+INSERT INTO drupal_sites (id,url, point)
+VALUES (0,'geoodk.com',(SELECT ST_GeomFromText('POINT(-71.064544 42.28787)',4326)));
+SELECT ST_GeomFromText('POINT(-71.064544 42.28787)',4326)
+
+SELECT AddGeometryColumn ('public','drupal_sites','point',4326,'POINT',2);
+
+SELECT ST_SetSRID(ST_MakePoint(-71.1043443253471, 42.3150676015829),4326)
+SELECT AddGeometryColumn( 'public', 'drupal_site', 'point', 4326, 'POINT', 2 );
+
+CREATE FUNCTION buildGeometry(lat numeric(38,10), lon numeric(38,10)) RETURNS geometry AS $$
+BEGIN
+
+SELECT ST_GeomFromText(('POINT(-71.064544 42.28787)'), 4326;
+
+$$
+
+CREATE FUNCTION test() RETURNS TRIGGER AS $$
+BEGIN 
+UPDATE films 
+SET test=(SELECT code,title) WHERE test IS NULL;
+RETURN NULL;
+END;
+$$ LANGUAGE plpgsql STRICT;
+
+
+CREATE FUNCTION test(code char(5)) RETURNS TRIGGER AS $$
+BEGIN 
+UPDATE films 
+SET test = 'abc';
+RETURN NULL;
+END;
+$$ LANGUAGE plpgsql STRICT;
+
+CREATE TRIGGER my_trigger
+AFTER INSERT ON films
+FOR EACH ROW
+EXECUTE PROCEDURE test();
+
+INSERT INTO films (code, title, did)
+VALUES ('9','99',9);
+
+
+
+//SELECT ST_SetSRID(ST_MakePoint(-71.1043443253471, 42.3150676015829),4326);
+
+CREATE FUNCTION my_trigger_function()
+RETURNS trigger AS $$
+BEGIN
+  NEW.test := ST_SetSRID(ST_MakePoint(NEW.did, NEW.did),4326);
+  RETURN NEW;
+END$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER my_trigger
+BEFORE INSERT ON films
+FOR EACH ROW
+EXECUTE PROCEDURE my_trigger_function();
